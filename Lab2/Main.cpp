@@ -2,7 +2,7 @@
 
 int main()
 {
-	Mat src = imread("./img/2.jpg", IMREAD_COLOR);
+	Mat src = imread("./img/3.jpg", IMREAD_COLOR);
 
 	// imshow("img1", src);
 	// waitKey(0);

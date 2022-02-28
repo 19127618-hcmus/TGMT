@@ -146,73 +146,84 @@ int EdgeDetector::detectByCany(const Mat& sourceImage, Mat& destinationImage)
 {
 	if (!sourceImage.data) return 0;
 
-	int gx = 0, gy = 0, sum = 0;
+	float gx = 0, gy = 0, sum = 0;
 	Mat output = sourceImage.clone();
 	int width = sourceImage.cols, height = sourceImage.rows;
 
 	cout << endl << width << endl;
 	cout << endl << height << endl;
 
-	vector<int> col;
-	vector<vector<int>> row;
+	//colR = column round; rowR = row round
+	vector<int> colR;
+	vector<vector<int>> rowR;
+
+	//colC = column current; rowC = row current
+	vector<double> colC;
+	vector<vector<double>> rowC;
 
 	for (int y = 1; y < height - 1; y++)
 	{
-		col.clear();
+		colR.clear();
 		// row.resize(0);
 		for (int x = 1; x < width - 1; x++)
 		{
 			gx = xGradient_Sobel(sourceImage, x, y);
 			gy = yGradient_Sobel(sourceImage, x, y);
 
-			double edgeGradient = sqrt(gx * gx + gy * gy);
 
-			double angle = abs(atan(edgeGradient) * 180 / 3.1415);
+			if (gx == 0) gx = 0.1;
+
+			double edgeGradient = sqrt(gx * gx + gy * gy);
+			colC.push_back(edgeGradient);
+
+			double angle = abs(atan(gy/gx) * 180 / 3.1415);
+
+			// if(angle > 112.5)
+			// cout << int(angle) << " ";
 
 			if (angle <= 22.5 || angle >= 157.5) angle = 0;
-			else if (angle > 22.5 || angle < 67.5) angle = 45;
-			else if (angle >= 67.5 || angle <= 112.5) angle = 90;
-			else if (angle > 112.5 || angle <= 157.5) angle = 135;
+			else if (angle > 22.5 && angle < 67.5) angle = 45;
+			else if (angle >= 67.5 && angle <= 112.5) angle = 90;
+			else if (angle > 112.5 && angle <= 157.5) angle = 135;
 			else angle = 0;
 
-			col.push_back(angle);
+			// cout << angle << " ";
+
+			colR.push_back(angle);
 		}
-		row.push_back(col);
+		rowC.push_back(colC);
+		rowR.push_back(colR);
 	}
 
-	cout << endl << col.size() << endl;
-
-	cout << endl << row.size() << endl;
+	cout << endl << colR.size() << endl;
+	cout << endl << rowR.size() << endl;
 
 	int value = 0;
 
-	for(int y=1;y<height-3;y++)
+	for (int y = 1; y < height - 3; y++)
 	{
-		for(int x=1;x<width-3;x++)
+		for (int x = 1; x < width - 3; x++)
 		{
-			if (row[y][x]==45)
+			value = 0;
+	
+			if (rowR[y][x] == 45)
 			{
-				if (row[y][x] >= max(row[y-1][x-1], row[y+1][x+1])) value = 255;
-				else value = 0;
+				if (rowC[y][x] > max(rowC[y - 1][x - 1], rowC[y + 1][x + 1])) value = 255;
 			}
-			else if (row[y][x] == 90)
+			else if (rowR[y][x] == 90)
 			{
-				if (row[y][x] >= max(row[y - 1][x], row[y + 1][x])) value = 255;
-				else value = 0;
+				if (rowC[y][x] > max(rowC[y - 1][x], rowC[y + 1][x])) value = 255;
 			}
-			else if (row[y][x] == 135)
+			else if (rowR[y][x] == 135)
 			{
-				if (row[y][x] >= max(row[y - 1][x + 1], row[y + 1][x - 1])) value = 255;
-				else value = 0;
+				if (rowC[y][x] > max(rowC[y - 1][x + 1], rowC[y + 1][x - 1])) value = 255;
 			}
 			else
 			{
-				if (row[y][x] >= max(row[y][x - 1], row[y][x + 1])) value = 255;
-				else value = 0;
+				if (rowC[y][x] > max(rowC[y][x - 1], rowC[y][x + 1])) value = 255;
 			}
-
+	
 			output.at<uchar>(y, x) = saturate_cast<uchar>(value);
-
 		}
 	}
 
