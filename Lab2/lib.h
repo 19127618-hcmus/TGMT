@@ -14,6 +14,6 @@ using namespace cv;
 using namespace std;
 
 bool compare(const char* a, string b);
-float char2float(char* argv[], int n);
+double char2double(char* argv[], int n);
 
 #endif

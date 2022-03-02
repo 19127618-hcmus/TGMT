@@ -4,6 +4,7 @@ EdgeDetector::EdgeDetector() {}
 EdgeDetector::~EdgeDetector() {}
 
 /*---------------------------------------------------------------------------*/
+// create kernel
 
 int EdgeDetector::xGradient_Sobel(Mat image, int x, int y)
 {
@@ -43,6 +44,7 @@ int EdgeDetector::yGradient_Prewitt(Mat image, int x, int y)
 }
 
 /*---------------------------------------------------------------------------*/
+// Sobel
 
 int EdgeDetector::detectBySobel(const Mat& sourceImage, Mat& destinationImage)
 {
@@ -70,6 +72,7 @@ int EdgeDetector::detectBySobel(const Mat& sourceImage, Mat& destinationImage)
 }
 
 /*---------------------------------------------------------------------------*/
+//Prewitt
 
 int EdgeDetector::detectByPrewitt(const Mat& sourceImage, Mat& destinationImage)
 {
@@ -97,6 +100,7 @@ int EdgeDetector::detectByPrewitt(const Mat& sourceImage, Mat& destinationImage)
 }
 
 /*---------------------------------------------------------------------------*/
+//Laplace
 
 int EdgeDetector::detectByLaplace(const Mat& sourceImage, Mat& destinationImage)
 {
@@ -141,8 +145,9 @@ int EdgeDetector::detectByLaplace(const Mat& sourceImage, Mat& destinationImage)
 }
 
 /*---------------------------------------------------------------------------*/
-/*
-int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage)
+//Canny
+
+int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage, int low, int high)
 {
 	if (!sourceImage.data) return 0;
 
@@ -165,20 +170,19 @@ int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage)
 	{
 		colR.clear();
 		colC.clear();
-		// row.resize(0);
+		
 		for (int x = 1; x < width - 1; x++)
 		{
+			//aplice Sobel kernel 
 			gx = xGradient_Sobel(sourceImage, x, y);
 			gy = yGradient_Sobel(sourceImage, x, y);
 
-
-			if (gx == 0) gx = 0.1;
+			// if (gx == 0) gx = 0.1;
 
 			double edgeGradient = sqrt(gx * gx + gy * gy);
 
 			double angle = (atan2(gy,gx) * 180 / 3.1415);
 			colC.push_back(angle);
-
 
 			// if(angle > 112.5 && angle <= 157.5)
 			// cout << int(angle) << " ";
@@ -197,6 +201,7 @@ int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage)
 		rowR.push_back(colR);
 	}
 
+	// col and row of non-maximum suppression
 	vector<bool> colNMS;
 	vector<vector<bool>> rowNMS;
 
@@ -234,6 +239,4 @@ int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage)
 	destinationImage = output.clone();
 	return 1;
 }
-*/
-
 

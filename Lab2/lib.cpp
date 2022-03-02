@@ -16,8 +16,8 @@ bool compare(const char* a, string b)
 	return 1;
 }
 
-float char2float(char* argv[], int n)
+double char2double(char* argv[], int n)
 {
-	float temp = strtod(argv[n], NULL);
+	double temp = strtod(argv[n], NULL);
 	return temp;
 }
