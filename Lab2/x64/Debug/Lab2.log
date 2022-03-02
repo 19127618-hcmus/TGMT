@@ -1,2 +1,4 @@
 ﻿  Main.cpp
+C:\Users\Tung\Desktop\GitHub\TGMT\Lab2\Main.cpp(80,86): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\Users\Tung\Desktop\GitHub\TGMT\Lab2\Main.cpp(80,64): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
   Lab2.vcxproj -> C:\Users\Tung\Desktop\GitHub\TGMT\Lab2\x64\Debug\Lab2.exe

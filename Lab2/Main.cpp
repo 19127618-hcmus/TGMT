@@ -1,9 +1,9 @@
 #include "edgeDetection.h"
 
-/*
+
 int main(int argc, char* argv[])
 {
-	//program.exe -sol input output
+	//program.exe -sob input output
 	EdgeDetector edgeDetect;
 	Mat blurSrc;
 	Mat graySrc;
@@ -22,9 +22,9 @@ int main(int argc, char* argv[])
 
 		cvtColor(blurSrc, graySrc, COLOR_BGR2GRAY);
 
-		if (compare(argv[1], "-sol"))
+		if (compare(argv[1], "-sob"))
 		{
-			success = edgeDetect.detectBySobel(blurSrc, des);
+			success = edgeDetect.detectBySobel(graySrc, des);
 			if (success)
 			{
 				imshow("Source image", src);
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 		}
 		else if (compare(argv[1], "-pre"))
 		{
-			success = edgeDetect.detectByPrewitt(blurSrc, des);
+			success = edgeDetect.detectByPrewitt(graySrc, des);
 			if (success)
 			{
 				imshow("Source image", src);
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 		}
 		else if (compare(argv[1], "-lap"))
 		{
-			success = edgeDetect.detectByLaplace(blurSrc, des);
+			success = edgeDetect.detectByLaplace(graySrc, des);
 			if (success)
 			{
 				imshow("Source image", src);
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 
 		if (compare(argv[1], "-can"))
 		{
-			Canny(graySrc, des, char2double(argv, 2), char2double(argv, 3), 3);
+			success = edgeDetect.detectByCanny(graySrc, des, char2double(argv, 2), char2double(argv, 3));
 			if (success)
 			{
 				imshow("Source image", src);
@@ -97,33 +97,6 @@ int main(int argc, char* argv[])
 		cout << "Input error!\n";
 		return 0;
 	}
-
-	waitKey(0);
-	return 0;
-}
-*/
-int main()
-{
-	EdgeDetector edgeDetect;
-
-	Mat src1 = imread("./img/1.jpg", IMREAD_COLOR);
-	Mat src2 = imread("./img/2.jpg", IMREAD_COLOR);
-	Mat src3 = imread("./img/3.jpg", IMREAD_COLOR);
-	Mat src4 = imread("./img/4.jpg", IMREAD_COLOR);
-	Mat src5 = imread("./img/5.jpg", IMREAD_COLOR);
-
-	Mat blurSrc;
-	Mat graySrc;
-	Mat des;
-
-	GaussianBlur(src5, blurSrc, Size(3, 3), 0);
-
-	cvtColor(blurSrc, graySrc, COLOR_BGR2GRAY);
-
-
-	edgeDetect.detectByCanny(graySrc, des, 1, 1);
-
-	imshow("1-Canny2", des);
 
 	waitKey(0);
 	return 0;

@@ -60,10 +60,14 @@ int EdgeDetector::detectBySobel(const Mat& sourceImage, Mat& destinationImage)
 		{
 			gx = xGradient_Sobel(sourceImage, x, y);
 			gy = yGradient_Sobel(sourceImage, x, y);
-			
+
+			//Sobel in both the x and y directions.
 			sum = abs(gx) + abs(gy);
+
+			//sum must be in range [0, 255]
 			sum = sum > 255 ? 255 : sum;
 			sum = sum < 0 ? 0 : sum;
+
 			output.at<uchar>(y, x) = saturate_cast<uchar>(sum);
 		}
 	}
@@ -73,7 +77,7 @@ int EdgeDetector::detectBySobel(const Mat& sourceImage, Mat& destinationImage)
 
 /*---------------------------------------------------------------------------*/
 //Prewitt
-
+//same as Sobel. Different from Sobel in the kernel.
 int EdgeDetector::detectByPrewitt(const Mat& sourceImage, Mat& destinationImage)
 {
 	if (!sourceImage.data) return 0;
@@ -113,14 +117,15 @@ int EdgeDetector::detectByLaplace(const Mat& sourceImage, Mat& destinationImage)
 	{
 		for (int x = 1; x < width - 1; x++)
 		{
-			//normal
+			//normal kernel
 			/*int sum = -sourceImage.at<uchar>(y - 1, x)
 				- sourceImage.at<uchar>(y + 1, x)
 				- sourceImage.at<uchar>(y, x - 1)
 				- sourceImage.at<uchar>(y, x + 1)
 				+ 4 * sourceImage.at<uchar>(y, x);*/
 
-				//include diagonals
+			//another type of kernel: direct multiplication.
+			//include diagonals
 			int sum =
 				-sourceImage.at<uchar>(y - 1, x - 1)
 				- sourceImage.at<uchar>(y - 1, x)
@@ -151,49 +156,48 @@ int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage, i
 {
 	if (!sourceImage.data) return 0;
 
-	float gx = 0, gy = 0, sum = 0;
+	float gx = 0, gy = 0;
 	Mat output = sourceImage.clone();
 	int width = sourceImage.cols, height = sourceImage.rows;
 
-	cout << endl << width << endl;
-	cout << endl << height << endl;
-
-	//colR = column round; rowR = row round
-	vector<int> colR;
-	vector<vector<int>> rowR;
-
-	//colC = column current; rowC = row current
+	//col and row current
 	vector<double> colC;
 	vector<vector<double>> rowC;
 
+	//col and row round
+	vector<int> colR;
+	vector<vector<int>> rowR;
+
+	int Gmax = 0; // gradient max
+
+	//calculate intensity gradient
 	for (int y = 1; y < height - 1; y++)
 	{
 		colR.clear();
 		colC.clear();
-		
+
 		for (int x = 1; x < width - 1; x++)
 		{
 			//aplice Sobel kernel 
 			gx = xGradient_Sobel(sourceImage, x, y);
 			gy = yGradient_Sobel(sourceImage, x, y);
 
-			// if (gx == 0) gx = 0.1;
-
 			double edgeGradient = sqrt(gx * gx + gy * gy);
 
-			double angle = (atan2(gy,gx) * 180 / 3.1415);
-			colC.push_back(angle);
+			//find gradient max
+			if (edgeGradient > Gmax)
+				Gmax = edgeGradient;
 
-			// if(angle > 112.5 && angle <= 157.5)
-			// cout << int(angle) << " ";
+			colC.push_back(edgeGradient);
 
-			if (angle <= 22.5 || angle >= 157.5) angle = 0;
-			else if (angle > 22.5 && angle < 67.5) angle = 45;
-			else if (angle >= 67.5 && angle <= 112.5) angle = 90;
-			else if (angle > 112.5 && angle <= 157.5) angle = 135;
+			//find angle as degrees format
+			double angle = (atan2(gy, gx) * 180 / 3.1415);
 
-			// if(angle == 45)
-			// cout << angle << " ";
+			//round angle become 0, 45, 90, 135
+			if ((angle >= 0 && angle < 22.5)|| (angle > 157.5 && angle < 180)|| (angle > -22.5 && angle < 0)|| (angle > -180 && angle < -157.5)) angle = 0;
+			else if ((angle > 22.5 && angle < 67.5)|| (angle > -157.5 && angle < -112.5)) angle = 45;
+			else if ((angle >= 67.5 && angle <= 112.5) || (angle > -112.5 && angle < -67.5)) angle = 90;
+			else if ((angle > 112.5 && angle <= 157.5) || (angle > -67.5 && angle < -22.5)) angle = 135;
 
 			colR.push_back(angle);
 		}
@@ -201,42 +205,69 @@ int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage, i
 		rowR.push_back(colR);
 	}
 
-	// col and row of non-maximum suppression
-	vector<bool> colNMS;
-	vector<vector<bool>> rowNMS;
+	// low and high condition
+	if (height > Gmax) height = Gmax;
+	if (high < 0) high = 0;
+	if (low < 0) low = 0;
+	if (low > high) low = high;
 
+	//Suppression of false edges //non-maximum suppression
 	for (int y = 1; y < height - 3; y++)
 	{
 		for (int x = 1; x < width - 3; x++)
 		{
 			int value = rowC[y][x];
 
+			//If neighboring pixels in the specified direction are larger than the current pixel, that pixel is not an edge -> set it into 0.
 			if (rowR[y][x] == 45)
 			{
-				if (rowC[y][x] <= max(rowC[y - 1][x - 1], rowC[y + 1][x + 1])) value = 0;
+				if (rowC[y][x] < max(rowC[y - 1][x - 1], rowC[y + 1][x + 1])) value = 0;
 			}
 			else if (rowR[y][x] == 90)
 			{
-				if (rowC[y][x] <= max(rowC[y - 1][x], rowC[y + 1][x])) value = 0;
+				if (rowC[y][x] < max(rowC[y - 1][x], rowC[y + 1][x])) value = 0;
 			}
 			else if (rowR[y][x] == 135)
 			{
-				if (rowC[y][x] <= max(rowC[y - 1][x + 1], rowC[y + 1][x - 1])) value = 0;
+				if (rowC[y][x] < max(rowC[y - 1][x + 1], rowC[y + 1][x - 1])) value = 0;
 			}
 			else
 			{
-				if (rowC[y][x] <= max(rowC[y][x - 1], rowC[y][x + 1])) value = 0;
+				if (rowC[y][x] < max(rowC[y][x - 1], rowC[y][x + 1])) value = 0;
 			}
 
-			if (value > 100) value = 255;
-			else value = 0;
-
+			//classify: strong edge, not edge and weak edge
+			if (value >= high) value = 255;
+			else if (value < low) value = 0;
+			else value = 75;
 			output.at<uchar>(y, x) = saturate_cast<uchar>(value);
 
+		}
+	}
+	int non_max_height = output.rows;
+	int non_max_width = output.cols;
+
+	//hysteresis thresholding
+	//is weak edge a strong edge?
+	for (int y = 1; y < non_max_height - 2; y++)
+	{
+		for (int x = 1; x < non_max_width - 2; x++)
+		{
+			if (output.at<uchar>(y, x) == 75)
+			{
+				//if this pixel has a neighbor is strong edge -> it is strong edge
+				//else it is not edge
+				if ((output.at<uchar>(y - 1, x - 1) == 255) || (output.at<uchar>(y - 1, x) == 255) || (output.at<uchar>(y - 1, x + 1) == 255) ||
+					(output.at<uchar>(y, x - 1) == 255) || (output.at<uchar>(y, x + 1) == 255) ||
+					(output.at<uchar>(y + 1, x - 1) == 255) || (output.at<uchar>(y + 1, x) == 255) || (output.at<uchar>(y + 1, x + 1) == 255))
+				{
+					output.at<uchar>(y, x) = saturate_cast < uchar>(255);
+				}
+				else output.at<uchar>(y, x) = saturate_cast < uchar>(0);
+			}
 		}
 	}
 
 	destinationImage = output.clone();
 	return 1;
 }
-
