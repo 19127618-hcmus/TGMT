@@ -6,12 +6,8 @@ bool compare(const char* a, string b)
 	//cout << la << " - " << lb;
 	if (la != lb) return 0;
 	else
-	{
 		for (int i = 0; i < la; i++)
-		{
 			if (a[i] != b[i]) return 0;
-		}
-	}
 
 	return 1;
 }

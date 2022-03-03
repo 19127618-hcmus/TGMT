@@ -3,26 +3,28 @@
 
 int main(int argc, char* argv[])
 {
-	//program.exe -sob input output
+	//program.exe inputFile -sob output
 	EdgeDetector edgeDetect;
 	Mat blurSrc;
 	Mat graySrc;
 	Mat des;
 
+	//load image
+	Mat src = imread(argv[1], cv::IMREAD_COLOR);
+	if (!src.data)
+	{
+		cout << "Wrong path!";
+		return 0;
+	}
+
+	//filter
+	GaussianBlur(src, blurSrc, Size(3, 3), 0);
+	cvtColor(blurSrc, graySrc, COLOR_BGR2GRAY);
+
 	bool success = 0;
 	if (argc == 4)
 	{
-		Mat src = imread(argv[2], cv::IMREAD_COLOR);
-		if (!src.data)
-		{
-			cout << "Wrong path!";
-			return 0;
-		}
-		GaussianBlur(src, blurSrc, Size(3, 3), 0);
-
-		cvtColor(blurSrc, graySrc, COLOR_BGR2GRAY);
-
-		if (compare(argv[1], "-sob"))
+		if (compare(argv[2], "-sob"))
 		{
 			success = edgeDetect.detectBySobel(graySrc, des);
 			if (success)
@@ -33,7 +35,7 @@ int main(int argc, char* argv[])
 			}
 			else cout << "\nNot success!\n";
 		}
-		else if (compare(argv[1], "-pre"))
+		else if (compare(argv[2], "-pre"))
 		{
 			success = edgeDetect.detectByPrewitt(graySrc, des);
 			if (success)
@@ -44,7 +46,7 @@ int main(int argc, char* argv[])
 			}
 			else cout << "\nNot success!\n";
 		}
-		else if (compare(argv[1], "-lap"))
+		else if (compare(argv[2], "-lap"))
 		{
 			success = edgeDetect.detectByLaplace(graySrc, des);
 			if (success)
@@ -62,22 +64,12 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	//program.exe -can low high input output
+	//program.exe input -can low high output
 	else if (argc == 6)
 	{
-		Mat src = imread(argv[4], cv::IMREAD_COLOR);
-		if (!src.data)
+		if (compare(argv[2], "-can"))
 		{
-			cout << "Wrong path!";
-			return 0;
-		}
-		GaussianBlur(src, blurSrc, Size(3, 3), 0);
-
-		cvtColor(blurSrc, graySrc, COLOR_BGR2GRAY);
-
-		if (compare(argv[1], "-can"))
-		{
-			success = edgeDetect.detectByCanny(graySrc, des, char2double(argv, 2), char2double(argv, 3));
+			success = edgeDetect.detectByCanny(graySrc, des, char2double(argv, 3), char2double(argv, 4));
 			if (success)
 			{
 				imshow("Source image", src);

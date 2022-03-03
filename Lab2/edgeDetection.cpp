@@ -194,7 +194,8 @@ int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage, i
 			double angle = (atan2(gy, gx) * 180 / 3.1415);
 
 			//round angle become 0, 45, 90, 135
-			if ((angle >= 0 && angle < 22.5)|| (angle > 157.5 && angle < 180)|| (angle > -22.5 && angle < 0)|| (angle > -180 && angle < -157.5)) angle = 0;
+			if ((angle >= 0 && angle < 22.5)|| (angle > 157.5 && angle < 180)|| (angle > -22.5 && angle < 0)|| 
+				(angle > -180 && angle < -157.5)) angle = 0;
 			else if ((angle > 22.5 && angle < 67.5)|| (angle > -157.5 && angle < -112.5)) angle = 45;
 			else if ((angle >= 67.5 && angle <= 112.5) || (angle > -112.5 && angle < -67.5)) angle = 90;
 			else if ((angle > 112.5 && angle <= 157.5) || (angle > -67.5 && angle < -22.5)) angle = 135;
@@ -220,21 +221,13 @@ int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage, i
 
 			//If neighboring pixels in the specified direction are larger than the current pixel, that pixel is not an edge -> set it into 0.
 			if (rowR[y][x] == 45)
-			{
 				if (rowC[y][x] < max(rowC[y - 1][x - 1], rowC[y + 1][x + 1])) value = 0;
-			}
 			else if (rowR[y][x] == 90)
-			{
 				if (rowC[y][x] < max(rowC[y - 1][x], rowC[y + 1][x])) value = 0;
-			}
 			else if (rowR[y][x] == 135)
-			{
 				if (rowC[y][x] < max(rowC[y - 1][x + 1], rowC[y + 1][x - 1])) value = 0;
-			}
 			else
-			{
 				if (rowC[y][x] < max(rowC[y][x - 1], rowC[y][x + 1])) value = 0;
-			}
 
 			//classify: strong edge, not edge and weak edge
 			if (value >= high) value = 255;
@@ -260,9 +253,7 @@ int EdgeDetector::detectByCanny(const Mat& sourceImage, Mat& destinationImage, i
 				if ((output.at<uchar>(y - 1, x - 1) == 255) || (output.at<uchar>(y - 1, x) == 255) || (output.at<uchar>(y - 1, x + 1) == 255) ||
 					(output.at<uchar>(y, x - 1) == 255) || (output.at<uchar>(y, x + 1) == 255) ||
 					(output.at<uchar>(y + 1, x - 1) == 255) || (output.at<uchar>(y + 1, x) == 255) || (output.at<uchar>(y + 1, x + 1) == 255))
-				{
 					output.at<uchar>(y, x) = saturate_cast < uchar>(255);
-				}
 				else output.at<uchar>(y, x) = saturate_cast < uchar>(0);
 			}
 		}
