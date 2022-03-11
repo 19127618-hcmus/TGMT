@@ -1,0 +1,10 @@
+﻿  lib.cpp
+C:\Users\Tung\Desktop\GitHub\TGMT\Lab3\lib.cpp(5,20): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Tung\Desktop\GitHub\TGMT\Lab3\lib.cpp(5,37): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  LocalFeatures.cpp
+  Main.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 72 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Lab3.vcxproj -> C:\Users\Tung\Desktop\GitHub\TGMT\Lab3\x64\Release\Lab3.exe

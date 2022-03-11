@@ -1,0 +1,4 @@
+﻿  Harris.cpp
+C:\Users\Tung\Desktop\GitHub\TGMT\Lab3\Harris.cpp(5,10): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Tung\Desktop\GitHub\TGMT\Lab3\Harris.cpp(10,21): warning C4305: '=': truncation from 'double' to 'float'
+  Lab3.vcxproj -> C:\Users\Tung\Desktop\GitHub\TGMT\Lab3\x64\Debug\Lab3.exe
